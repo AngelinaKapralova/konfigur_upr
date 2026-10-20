@@ -2,6 +2,7 @@ package shell;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.nio.file.Path;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -10,19 +11,22 @@ import javax.swing.JTextField;
 public class ShellWindow extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final String TITLE = "VFS";
-    private static final String PROMPT = "vfs$ ";
     private static final String WELCOME =
-            "VFS. Commands: ls, cd, exit";
+            "VFS. Commands: ls, cd, conf-dump, exit";
+    private static final String DEBUG = "[debug] ";
     private static final int WIDTH = 700;
     private static final int HEIGHT = 450;
     private static final int FONT_SIZE = 14;
 
     private final JTextArea output = new JTextArea();
     private final JTextField input = new JTextField();
-    private final Shell shell = new Shell();
+    private final transient Config config;
+    private final transient Shell shell;
 
-    public ShellWindow() {
+    public ShellWindow(Config config) {
         super(TITLE);
+        this.config = config;
+        this.shell = new Shell(config);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(WIDTH, HEIGHT);
         setLayout(new BorderLayout());
@@ -34,18 +38,39 @@ public class ShellWindow extends JFrame {
         add(input, BorderLayout.SOUTH);
         input.addActionListener(event -> handleInput());
         print(WELCOME);
+        printDebug();
         setLocationRelativeTo(null);
     }
 
     public void open() {
         setVisible(true);
         input.requestFocusInWindow();
+        runStartupScript();
+    }
+
+    private void printDebug() {
+        print(DEBUG + "startup parameters:");
+        for (String line : config.dump().split("\n")) {
+            print(DEBUG + "  " + line);
+            System.out.println(DEBUG + line);
+        }
+    }
+
+    private void runStartupScript() {
+        if (!config.hasScript()) {
+            return;
+        }
+        Path script = Path.of(config.getScriptPath());
+        ScriptRunner.run(script, shell, this::print);
+        if (shell.isExitRequested()) {
+            dispose();
+        }
     }
 
     private void handleInput() {
         String line = input.getText();
         input.setText("");
-        print(PROMPT + line);
+        print(Shell.PROMPT + line);
         try {
             String result = shell.execute(line);
             if (!result.isEmpty()) {
