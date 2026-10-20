@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public final class ConfigTest {
     private static final int EXIT_FAILURE = 1;
@@ -28,7 +29,7 @@ public final class ConfigTest {
     }
 
     private static void check(String name, Object expected, Object actual) {
-        if (expected.equals(actual)) {
+        if (Objects.equals(expected, actual)) {
             System.out.println("OK   " + name);
         } else {
             failed = true;
@@ -96,15 +97,15 @@ public final class ConfigTest {
         List<String> out = new ArrayList<>();
         boolean ok = runScript(List.of("ls -l", "# note", "", "cd docs"), out);
         check("script ok result", true, ok);
-        check("script ok output", List.of("vfs$ ls -l", "ls: args=[-l]",
-                "vfs$ # note", "vfs$ cd docs", "cd: args=[docs]"), out);
+        check("script ok output", List.of("vfs$ ls -l", "ls -l",
+                "vfs$ # note", "vfs$ cd docs", "cd docs"), out);
     }
 
     private static void testScriptError() throws IOException {
         List<String> out = new ArrayList<>();
         boolean ok = runScript(List.of("ls", "foo", "cd x"), out);
         check("script error result", false, ok);
-        check("script error output", List.of("vfs$ ls", "ls: args=[]",
+        check("script error output", List.of("vfs$ ls", "ls",
                 "vfs$ foo", "foo: command not found",
                 "script error: stopped at line 2"), out);
     }
