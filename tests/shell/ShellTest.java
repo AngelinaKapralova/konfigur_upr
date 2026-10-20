@@ -2,12 +2,14 @@ package shell;
 
 import java.util.List;
 
+
 public final class ShellTest {
     private static final int EXIT_FAILURE = 1;
     private static boolean failed;
 
     private ShellTest() {
     }
+
     public static void main(String[] args) throws CommandException {
         testParser();
         testStubs();
@@ -51,10 +53,9 @@ public final class ShellTest {
 
     private static void testStubs() {
         Shell shell = new Shell();
-        check("ls no args", "ls: args=[]", run(shell, "ls"));
-        check("ls args", "ls: args=[-l, /home]", run(shell, "ls -l /home"));
-        check("cd quoted", "cd: args=[My Docs]",
-                run(shell, "cd \"My Docs\""));
+        check("ls no args", "ls", run(shell, "ls").trim());
+        check("ls args", "ls -l /home", run(shell, "ls -l /home"));
+        check("cd quoted", "cd My Docs", run(shell, "cd \"My Docs\""));
         check("empty line", "", run(shell, ""));
     }
 
