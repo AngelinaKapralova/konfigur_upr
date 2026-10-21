@@ -11,6 +11,7 @@ public class Shell {
     private static final int NO_ARGS = 0;
 
     private final Config config;
+    private final Vfs vfs;
     private boolean exitRequested;
 
     public Shell() {
@@ -18,7 +19,12 @@ public class Shell {
     }
 
     public Shell(Config config) {
+        this(config, null);
+    }
+
+    public Shell(Config config, Vfs vfs) {
         this.config = config;
+        this.vfs = vfs;
     }
 
     public String execute(String line) throws CommandException {
@@ -37,6 +43,9 @@ public class Shell {
             case "conf-dump":
                 requireMaxArgs(name, args, NO_ARGS);
                 return config.dump();
+            case "vfs-info":
+                requireMaxArgs(name, args, NO_ARGS);
+                return vfsInfo();
             case "exit":
                 requireMaxArgs(name, args, NO_ARGS);
                 exitRequested = true;
@@ -62,5 +71,12 @@ public class Shell {
         if (args.size() > max) {
             throw new CommandException(name + ": too many arguments");
         }
+    }
+    private String vfsInfo() throws CommandException {
+        if (vfs == null) {
+            throw new CommandException("vfs-info: no VFS loaded");
+        }
+        return "vfs-name=" + vfs.getName() + "\n"
+                + "vfs-sha256=" + vfs.getHash();
     }
 }
