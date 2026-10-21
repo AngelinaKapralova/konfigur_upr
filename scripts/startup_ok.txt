@@ -1,0 +1,4 @@
+# Стартовый скрипт: проверка команд этапа 2
+conf-dump
+ls -l /home
+cd "My Documents"
