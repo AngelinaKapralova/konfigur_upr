@@ -18,3 +18,4 @@ test: build
 
 clean:
 	rm -rf $(OUT)
+	java -cp $(OUT) shell.VfsTest
