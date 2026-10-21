@@ -12,7 +12,7 @@ public class ShellWindow extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final String TITLE = "VFS";
     private static final String WELCOME =
-            "VFS. Commands: ls, cd, conf-dump, exit";
+            "VFS. Commands: ls, cd, conf-dump, vfs-info, exit";
     private static final String DEBUG = "[debug] ";
     private static final int WIDTH = 700;
     private static final int HEIGHT = 450;
@@ -26,7 +26,6 @@ public class ShellWindow extends JFrame {
     public ShellWindow(Config config) {
         super(TITLE);
         this.config = config;
-        this.shell = new Shell(config);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(WIDTH, HEIGHT);
         setLayout(new BorderLayout());
@@ -39,6 +38,7 @@ public class ShellWindow extends JFrame {
         input.addActionListener(event -> handleInput());
         print(WELCOME);
         printDebug();
+        this.shell = new Shell(config, loadVfs());
         setLocationRelativeTo(null);
     }
 
@@ -81,6 +81,21 @@ public class ShellWindow extends JFrame {
         }
         if (shell.isExitRequested()) {
             dispose();
+        }
+    }
+
+    private Vfs loadVfs() {
+        if (config.getVfsPath() == null) {
+            return null;
+        }
+        try {
+            Vfs vfs = VfsLoader.load(config.getVfsPath());
+            print(DEBUG + "VFS loaded: " + vfs.getName());
+            return vfs;
+        } catch (VfsException error) {
+            print(error.getMessage());
+            System.err.println(error.getMessage());
+            return null;
         }
     }
 
