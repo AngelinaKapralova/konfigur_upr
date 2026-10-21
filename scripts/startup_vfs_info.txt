@@ -1,0 +1,3 @@
+# Параметры и информация о VFS
+conf-dump
+vfs-info
