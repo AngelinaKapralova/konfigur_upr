@@ -14,7 +14,6 @@ public final class VfsHasher {
         MessageDigest digest = newDigest();
         update(digest, "", root);
 
-        // Преобразуем массив байтов в hex-строку вручную
         byte[] hashBytes = digest.digest();
         StringBuilder hexString = new StringBuilder();
         for (byte b : hashBytes) {
